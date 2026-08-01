@@ -170,6 +170,14 @@ class DeltaHash:
             proxy_url = proxy_url.split("@", 1)[1]
 
         return proxy_url
+
+    def extract_conncet_sid(self, idx: int):
+        cookie = self.accounts[idx]["cookie"]
+        if cookie.startswith("connect.sid"):
+            cookie.removeprefix("connect.sid=")
+        return {
+            "connect.sid": cookie
+        }
     
     def initialize_headers(self, idx: int):
         headers = {
@@ -177,7 +185,6 @@ class DeltaHash:
             "Accept-Encoding": "gzip, deflate, br",
             "Accept-Language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
             "Cache-Control": "no-cache",
-            "Cookie": self.accounts[idx]["cookie"],
             "Origin": "https://portal.deltahash.ai",
             "Pragma": "no-cache",
             "Referer": "https://portal.deltahash.ai/",
@@ -250,9 +257,10 @@ class DeltaHash:
             connector, proxy, proxy_auth = self.build_proxy_config(proxy_url)
             try:
                 headers = self.initialize_headers(idx)
+                cookies = self.extract_conncet_sid(idx)
 
                 async with ClientSession(connector=connector, timeout=ClientTimeout(total=60)) as session:
-                    async with session.get(url=url, headers=headers, proxy=proxy, proxy_auth=proxy_auth) as response:
+                    async with session.get(url=url, headers=headers, cookies=cookies, proxy=proxy, proxy_auth=proxy_auth) as response:
                         await self.ensure_ok(response)
                         return await response.json()
             except (Exception, ClientResponseError) as e:
@@ -277,12 +285,13 @@ class DeltaHash:
             try:
                 headers = self.initialize_headers(idx)
                 headers["Content-Type"] = "application/json"
+                cookies = self.extract_conncet_sid(idx)
                 payload = {
                     "code": self.REF_CODE
                 }
 
                 async with ClientSession(connector=connector, timeout=ClientTimeout(total=60)) as session:
-                    async with session.post(url=url, headers=headers, json=payload, proxy=proxy, proxy_auth=proxy_auth) as response:
+                    async with session.post(url=url, headers=headers, cookies=cookies, json=payload, proxy=proxy, proxy_auth=proxy_auth) as response:
                         if response.status == 400: return None
                         await self.ensure_ok(response)
                         return await response.json()
@@ -308,12 +317,13 @@ class DeltaHash:
             try:
                 headers = self.initialize_headers(idx)
                 headers["Content-Type"] = "application/json"
+                cookies = self.extract_conncet_sid(idx)
                 payload = {
                     "task": task_id
                 }
 
                 async with ClientSession(connector=connector, timeout=ClientTimeout(total=60)) as session:
-                    async with session.post(url=url, headers=headers, json=payload, proxy=proxy, proxy_auth=proxy_auth) as response:
+                    async with session.post(url=url, headers=headers, cookies=cookies, json=payload, proxy=proxy, proxy_auth=proxy_auth) as response:
                         await self.ensure_ok(response)
                         return await response.json()
             except (Exception, ClientResponseError) as e:
@@ -337,9 +347,10 @@ class DeltaHash:
             connector, proxy, proxy_auth = self.build_proxy_config(proxy_url)
             try:
                 headers = self.initialize_headers(idx)
+                cookies = self.extract_conncet_sid(idx)
 
                 async with ClientSession(connector=connector, timeout=ClientTimeout(total=60)) as session:
-                    async with session.get(url=url, headers=headers, proxy=proxy, proxy_auth=proxy_auth) as response:
+                    async with session.get(url=url, headers=headers, cookies=cookies, proxy=proxy, proxy_auth=proxy_auth) as response:
                         await self.ensure_ok(response)
                         return await response.json()
             except (Exception, ClientResponseError) as e:
@@ -364,9 +375,10 @@ class DeltaHash:
             try:
                 headers = self.initialize_headers(idx)
                 headers["Content-Type"] = "application/json"
+                cookies = self.extract_conncet_sid(idx)
 
                 async with ClientSession(connector=connector, timeout=ClientTimeout(total=60)) as session:
-                    async with session.post(url=url, headers=headers, json={}, proxy=proxy, proxy_auth=proxy_auth) as response:
+                    async with session.post(url=url, headers=headers, cookies=cookies, json={}, proxy=proxy, proxy_auth=proxy_auth) as response:
                         if response.status == 500:
                             self.accounts[idx]["user_agent"] = random.choice(self.USER_AGENTS["mobile"])
                             continue
@@ -393,9 +405,10 @@ class DeltaHash:
             connector, proxy, proxy_auth = self.build_proxy_config(proxy_url)
             try:
                 headers = self.initialize_headers(idx)
+                cookies = self.extract_conncet_sid(idx)
 
                 async with ClientSession(connector=connector, timeout=ClientTimeout(total=60)) as session:
-                    async with session.get(url=url, headers=headers, proxy=proxy, proxy_auth=proxy_auth) as response:
+                    async with session.get(url=url, headers=headers, cookies=cookies, proxy=proxy, proxy_auth=proxy_auth) as response:
                         await self.ensure_ok(response)
                         return await response.json()
             except (Exception, ClientResponseError) as e:
@@ -420,6 +433,7 @@ class DeltaHash:
             try:
                 headers = self.initialize_headers(idx)
                 headers["Content-Type"] = "application/json"
+                cookies = self.extract_conncet_sid(idx)
                 if cloud_device_id:
                     payload = {
                         "cloudDeviceId": cloud_device_id
@@ -428,7 +442,7 @@ class DeltaHash:
                     payload = {}
 
                 async with ClientSession(connector=connector, timeout=ClientTimeout(total=60)) as session:
-                    async with session.post(url=url, headers=headers, json=payload, proxy=proxy, proxy_auth=proxy_auth) as response:
+                    async with session.post(url=url, headers=headers, cookies=cookies, json=payload, proxy=proxy, proxy_auth=proxy_auth) as response:
                         if response.status == 400:
                             self.accounts[idx]["user_agent"] = random.choice(self.USER_AGENTS["mobile"])
                             continue
@@ -455,9 +469,10 @@ class DeltaHash:
             connector, proxy, proxy_auth = self.build_proxy_config(proxy_url)
             try:
                 headers = self.initialize_headers(idx)
+                cookies = self.extract_conncet_sid(idx)
 
                 async with ClientSession(connector=connector, timeout=ClientTimeout(total=60)) as session:
-                    async with session.post(url=url, headers=headers, proxy=proxy, proxy_auth=proxy_auth) as response:
+                    async with session.post(url=url, headers=headers, cookies=cookies, proxy=proxy, proxy_auth=proxy_auth) as response:
                         await self.ensure_ok(response)
                         return await response.json()
             except (Exception, ClientResponseError) as e:
@@ -714,17 +729,6 @@ class DeltaHash:
 
             tasks = []
             for idx, cookie in enumerate(cookies, start=1):
-                if not cookie.startswith("connect.sid"):
-                    self.log(
-                        f"{Fore.CYAN + Style.BRIGHT}[ Account: {Style.RESET_ALL}"
-                        f"{Fore.WHITE + Style.BRIGHT}{idx}{Style.RESET_ALL}"
-                        f"{Fore.MAGENTA + Style.BRIGHT} - {Style.RESET_ALL}"
-                        f"{Fore.CYAN + Style.BRIGHT}Status:{Style.RESET_ALL}"
-                        f"{Fore.RED + Style.BRIGHT} Invalid Cookie Data {Style.RESET_ALL}"
-                        f"{Fore.CYAN + Style.BRIGHT}]{Style.RESET_ALL}"
-                    )
-                    continue
-
                 if idx not in self.accounts:
                     self.accounts[idx] = {
                         "cookie": cookie,
